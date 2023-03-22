@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/access/Ownable.sol"
-import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol"
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
 
 contract mchezoWaMshindiWaBahatiNasibu is VRFConsumerBase, Ownable {
     uint256 public ada;
@@ -21,21 +21,21 @@ contract mchezoWaMshindiWaBahatiNasibu is VRFConsumerBase, Ownable {
 
     event MchezajiAjiunga(uint256 kitambulishoChaMchezo, address mchezaji);
 
-    event MchezoKumalizika( uint256 kitambulishoChaMchezo, address mshindi, bytes32 kitambulishoChaOmbi);
+    event MchezoKumalizika( uint256 kitambulishoChaMchezo, address mshindi, bytes32 requestId);
 
     /**
     * constructor hurithi VRFConsumerBase na kuanzisha thamani za keyHash, ada na mchezoKuanza
-    * @param anwani vrfCoordinator  ya mkataba wa VRFCoordinator
-    * @param anwani linkToken  ya mkataba wa LINK tokeni 
-    * @param vrfAda kiasi cha LINK cha kutuma pamoja na ombi
-    @param Kitambulisho cha vrfKeyHash cha ufunguo wa umma ambapo ubahatishaji unatolewa
+    @param vrfCoordinator address ya mkataba wa VRFCoordinator
+    @param  linkToken addresss ya mkataba wa LINK tokeni 
+    @param vrfFee kiasi cha LINK cha kutuma pamoja na ombi
+    @param  vrfKeyHash ID cha ufunguo wa umma ambapo ubahatishaji unatolewa
      */
 
-     constructor(address vrfCoordinator, address linkToken, bytes32 vrfKeyHash, uint256 vrfAda)
-     VRFConsumerBase(vrfCoordinator linkToken) {
+     constructor(address vrfCoordinator, address linkToken, bytes32 vrfKeyHash, uint256 vrfFee)
+     VRFConsumerBase(vrfCoordinator, linkToken) {
         keyHash = vrfKeyHash;
-        ada = vrfAda;
-        mchezoKuanza = false;
+        ada = vrfFee;
+        mchezoUmeanza = false;
      }
 
      /**
@@ -53,9 +53,9 @@ contract mchezoWaMshindiWaBahatiNasibu is VRFConsumerBase, Ownable {
         mchezoUmeanza = true;
 
         // sanidi adaYaKuingia ya kiingilio cha mchezo
-        adaYaKuingia = _adaYaKuingia
+        adaYaKuingia = _adaYaKuingia;
         kitambulishoChaMchezo += 1;
-        emit MchezoKuanza(kitambulishoChaMchezo, wachezajiWaKiwangoChaJuu, adaYaKuingia)
+        emit MchezoKuanza(kitambulishoChaMchezo, wachezajiWaKiwangoChaJuu, adaYaKuingia);
     }
 
     /**
@@ -86,7 +86,7 @@ contract mchezoWaMshindiWaBahatiNasibu is VRFConsumerBase, Ownable {
      /**
      * fulfillRandomness huitwa na VRFCoordinator inapopokea uthibitisho halali wa VRF.
      * Chaguo hili la kukokotoa limebatilishwa ili kufanyia kazi nambari nasibu iliyotolewa na Chainlink VRF.
-     * @param kitambulishoChaOmbi (requestId) kitambulisho hiki ni cha kipekee kwa ombi tulilotuma kwa Mratibu wa VRF (VRF Coordinator)
+     * @param requestId kitambulisho hiki ni cha kipekee kwa ombi tulilotuma kwa Mratibu wa VRF (VRF Coordinator)
      * @param randomness hii ni kitengo cha uint256 kilichotolewa na kurudishwa kwetu na Mratibu wa VRF (VRF Coordinator)
       */
 
@@ -100,10 +100,10 @@ contract mchezoWaMshindiWaBahatiNasibu is VRFConsumerBase, Ownable {
 
         // tuma ethari katika mkataba kwa mshindi
         (bool sent,) = mshindi.call{value: address(this).balance}("");
-        require(sent, "Imeshindwa kutuma Ether");
+        require(sent, "Imeshindwa kutuma Ethari");
 
         // Emit kwamba mchezo umekwisha
-        emit MchezoKumalizika(kitambulishoChaMchezo, mshindi, kitambulishoChaOmbi);
+        emit MchezoKumalizika(kitambulishoChaMchezo, mshindi, requestId);
 
         // weka mchezoKuanza kutofautisha hali sivyo
         mchezoUmeanza = false;

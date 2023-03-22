@@ -11,3 +11,4 @@ REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.js
 ```
+Contract Address mchezoWaMshindiWaBahatiNasibu is: 0xDb6c2D6686f74010b63A18821B04c41A8ac49652

@@ -1,32 +1,48 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
-// will compile your contracts, add the Hardhat Runtime Environment's members to the
-// global scope, and execute the script.
-const hre = require("hardhat");
+const {ethers} = require("hardhat")
+require("dotenv").config({peth: ".env"})
+const {FEE, VRF_COORDINATOR, LINK_TOKEN, KEY_HASH} = require("../constants")
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  /**
+   * Kiwanda cha Mkataba (ContractFactory) katika ethers.js ni kifupi kinachotumika kupeleka mikataba mipya mahiri,
+  kwa hivyo mchezoWaMshindiWaBahatiNasibu hapa ni kiwanda kwa matukio ya mkataba wetu wa MchezoWaMshindiWaBahatiNasibu.
+   */
 
-  const lockedAmount = hre.ethers.utils.parseEther("0.001");
+  const mchezoWaMshindiWaBahatiNasibu = await ethers.getContractFactory("mchezoWaMshindiWaBahatiNasibu")
 
-  const Lock = await hre.ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
-
-  await lock.deployed();
-
-  console.log(
-    `Lock with ${ethers.utils.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`
+  // peleka mkataba
+  const pelekaMkatabaMchezoWaMshindiWaBahatiNasibu = await mchezoWaMshindiWaBahatiNasibu.deploy(
+    VRF_COORDINATOR, LINK_TOKEN, KEY_HASH, FEE
   );
+
+  await pelekaMkatabaMchezoWaMshindiWaBahatiNasibu.deployed()
+
+  // chapisha anwani ya mkataba uliotumwa
+  console.log(
+    pelekaMkatabaMchezoWaMshindiWaBahatiNasibu.address
+  );
+
+  console.log("Nalala...");
+
+  // Subiri kwa etherscan itambue kwamba mkataba umewekwa
+  await lala(30000);
+
+  // Thibitisha mkataba baada ya kupeleka
+  await hre.run("verify:verify", {
+    address: pelekaMkatabaMchezoWaMshindiWaBahatiNasibu.address,
+    constructorArguments: [VRF_COORDINATOR, LINK_TOKEN, KEY_HASH, FEE]
+  })
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
+function lala(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+
+}
+
+// Ita chaguo hili kuu la kukokotoa na ushike ikiwa kuna hitilafu yoyote
+main()
+.then(() => process.exit(0))
+.catch((error) => {
   console.error(error);
-  process.exitCode = 1;
-});
+  process.exit(1)
+})
